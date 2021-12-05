@@ -39,9 +39,9 @@ async function execute(message, args, pool) {
 
     if (!voiceChannel) return sendMessage(message.channel, "Join the voice channel to play music in first!");
     var permissions = voiceChannel.permissionsFor(message.client.user);
-    if (!permissions.has('CONNECT')) return sendMessage(message.channel("I must have permissions to connect to the vc!"));
-    if (!permissions.has('SPEAK')) return sendMessage(message.channel("I must have permissions to talk"));
-    if (!args.length) return sendMessage(message.channel("Send a keyword or url"));
+    if (!permissions.has('CONNECT')) return sendMessage(message.channel, "I must have permissions to connect to the vc!");
+    if (!permissions.has('SPEAK')) return sendMessage(message.channel, "I must have permissions to talk");
+    if (!args.length) return sendMessage(message.channel, "Send a keyword or url");
 
     const validURL = (str) => {
         var regex = /(http|https):\/\/(\w+:{0,1}\w*)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%!\-\/]))?/;
