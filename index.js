@@ -41,7 +41,7 @@ client.on("message", message => {
     var command = args.shift().toLowerCase();
 
     if (client.commands.has(command)) {
-        client.commands.get(command).execute(message, args, pool);
+        client.commands.get(command).execute(message, args, pool, client);
     }
 })
 

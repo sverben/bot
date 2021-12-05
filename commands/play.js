@@ -23,6 +23,7 @@ async function startPlaying(connection, vc, server, pool) {
         }
 
         var stream = ytdl(res[0].url, {filter: 'audioonly'});
+        res[0].info = JSON.parse(res[0].info);
 
         connection.play(stream, {seek: 0, volume: 0.5})
             .on("finish", () => {
