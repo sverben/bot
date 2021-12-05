@@ -53,7 +53,7 @@ async function execute(message, args, pool) {
     }
 
     var connection = null;
-    if (typeof message.guild.voice == "undefined" || typeof message.guild.voice.channel == "undefined") {
+    if (typeof message.guild.voice == "undefined" || message.guild.voice.channelID == null) {
         connection = await voiceChannel.join();
     }
 
