@@ -3,14 +3,12 @@ const ytSearch = require('yt-search');
 const Discord = require("discord.js");
 const {MessageAttachment} = require("discord.js");
 
-function sendMessage(channel, message, optionalImage) {
-    if (typeof optionalImage == "undefined") optionalImage = null;
-
+function sendMessage(channel, message) {
     var embed = new Discord.MessageEmbed()
         .setColor("#2e8ae6")
         .setTitle("Radio Player")
         .setDescription(message)
-        .setThumbnail(optionalImage)
+        .setThumbnail("https://media.discordapp.net/attachments/862414765300383767/917482294451785778/Rectangle_1.png")
     channel.send(embed);
 }
 
