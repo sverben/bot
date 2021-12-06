@@ -45,4 +45,13 @@ client.on("message", message => {
     }
 })
 
+client.on('voiceStateUpdate', (oldState, newState) => {
+    var channel = oldState.channel;
+    if (channel == null) return;
+
+    if(oldState.channel.members.size == 1) {
+        oldState.channel.leave();
+    }
+});
+
 client.login(TOKEN);
