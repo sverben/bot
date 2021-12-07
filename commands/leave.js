@@ -14,6 +14,7 @@ async function execute(message, args, pool) {
     var embed = new Discord.MessageEmbed()
         .setColor("#2e8ae6")
         .setTitle("Music Player")
+        .setThumbnail("https://media.discordapp.net/attachments/862414765300383767/917699238417268776/Rectangle_1.png")
         .setDescription("Left the channel");
 
     pool.query("DELETE FROM queue WHERE server = ?", [message.guild.id]);
