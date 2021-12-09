@@ -1,6 +1,6 @@
 FROM node:16
 
-RUN apt -yy update && apt -yy install ffmpeg
+RUN apt -yy update && apt -yy install ffmpeg && apt clean
 
 WORKDIR /app
 COPY package*.json ./
