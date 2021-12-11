@@ -2,6 +2,8 @@ const ytdl = require('ytdl-core');
 const ytSearch = require('yt-search');
 const Discord = require("discord.js");
 
+let streams = {};
+
 function sendMessage(channel, message, optionalImage) {
     if (typeof optionalImage == "undefined") optionalImage = null;
 
@@ -22,6 +24,7 @@ async function startPlaying(connection, vc, server, pool) {
         }
 
         const stream = ytdl(res[0].url, {filter: 'audioonly'});
+        streams[vc.guild.id] = stream;
         res[0].info = JSON.parse(res[0].info);
 
         connection.play(stream, {seek: 0, volume: 0.5})
@@ -31,6 +34,13 @@ async function startPlaying(connection, vc, server, pool) {
 
         connection.voice.setSelfDeaf(true);
     })
+}
+
+function next(message) {
+    if (typeof streams[message.guild.id] == "undefined") return sendMessage(message.channel, "I am not playing music!");
+    streams[message.guild.id].end();
+
+    sendMessage(message.channel, "Skipped!");
 }
 
 async function play(message, args, pool) {
@@ -83,5 +93,6 @@ async function play(message, args, pool) {
 }
 
 module.exports = {
-    play
+    play,
+    next
 }
