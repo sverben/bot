@@ -1,7 +1,7 @@
 const Discord = require("discord.js");
 
 function queue(message, args, pool) {
-    var embed = new Discord.MessageEmbed()
+    let embed = new Discord.MessageEmbed()
         .setColor("#238ae6")
         .setTitle("Queue")
         .setThumbnail("https://cdn.discordapp.com/avatars/916672082199326790/71edd3de9b9045606d6065ad3073d271.png?size=256")
@@ -11,7 +11,7 @@ function queue(message, args, pool) {
             embed.setDescription("No songs in queue");
         }
 
-        for (var item in res) {
+        for (let item in res) {
             item = res[item];
             item.info = JSON.parse(item.info);
             if (typeof item.info.name == "undefined") item.info.name = item.url;

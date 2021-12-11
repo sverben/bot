@@ -1,9 +1,9 @@
-var Discord = require("discord.js");
+const Discord = require("discord.js");
 
 function sendMessage(channel, message, optionalImage) {
     if (typeof optionalImage == "undefined") optionalImage = null;
 
-    var embed = new Discord.MessageEmbed()
+    let embed = new Discord.MessageEmbed()
         .setColor("#2e8ae6")
         .setTitle("Music Player")
         .setDescription(message);
@@ -11,9 +11,9 @@ function sendMessage(channel, message, optionalImage) {
 }
 
 async function stop(message, args, pool) {
-    var voiceChannel = message.member.voice.channel;
+    let voiceChannel = message.member.voice.channel;
     if (!voiceChannel) {
-        var embed = new Discord.MessageEmbed()
+        let embed = new Discord.MessageEmbed()
             .setColor("#2e8ae6")
             .setTitle("Music Player")
             .setDescription("You must be in the voice channel!")
@@ -28,7 +28,7 @@ async function stop(message, args, pool) {
     }
 
     await voiceChannel.leave();
-    var embed = new Discord.MessageEmbed()
+    let embed = new Discord.MessageEmbed()
         .setColor("#2e8ae6")
         .setTitle("Music Player")
         .setThumbnail("https://media.discordapp.net/attachments/862414765300383767/917699238417268776/Rectangle_1.png")

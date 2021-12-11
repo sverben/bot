@@ -1,7 +1,7 @@
 const Discord = require("discord.js");
 
 function help(message) {
-    var embed = new Discord.MessageEmbed()
+    let embed = new Discord.MessageEmbed()
         .setColor("#238ae6")
         .setTitle("Help")
         .addField("General", "`!help` Info on how to use commands for the bot\n" +

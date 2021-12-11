@@ -2,10 +2,10 @@ const Discord = require("discord.js");
 const {readdirSync} = require("fs");
 const mysql = require("mysql2");
 
-var PREFIX = "!";
-var TOKEN = process.env.token;
+const PREFIX = "!";
+const TOKEN = process.env.token;
 
-var client = new Discord.Client({intents: ["GUILDS", "GUILD_MESSAGES", "GUILD_MESSAGE_REACTIONS", "GUILD_VOICE_STATES"]});
+const client = new Discord.Client({intents: ["GUILDS", "GUILD_MESSAGES", "GUILD_MESSAGE_REACTIONS", "GUILD_VOICE_STATES"]});
 
 client.commands = new Discord.Collection();
 
@@ -18,7 +18,7 @@ for (const file of commandFiles) {
     }
 }
 
-var pool  = mysql.createPool({
+const pool  = mysql.createPool({
     connectionLimit : 10,
     host            : process.env["mysqlhost"] || 'localhost',
     user            : process.env["mysqluser"],
@@ -37,8 +37,8 @@ client.once("ready", () => {
 client.on("message", message => {
     if (message.author.bot || !message.content.startsWith(PREFIX)) return;
 
-    var args = message.content.slice(PREFIX.length).split(/ +/);
-    var command = args.shift().toLowerCase();
+    let args = message.content.slice(PREFIX.length).split(/ +/);
+    let command = args.shift().toLowerCase();
 
     if (client.commands.has(command)) {
         client.commands.get(command)(message, args, pool, client);
@@ -46,7 +46,7 @@ client.on("message", message => {
 })
 
 client.on('voiceStateUpdate', (oldState) => {
-    var channel = oldState.channel;
+    let channel = oldState.channel;
     if (channel == null) return;
 
     if(oldState.channel.members.size === 1) {

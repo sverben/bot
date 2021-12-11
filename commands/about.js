@@ -1,7 +1,7 @@
 const Discord = require("discord.js");
 
 function about(message) {
-    var embed = new Discord.MessageEmbed()
+    let embed = new Discord.MessageEmbed()
         .setColor("#238ae6")
         .setTitle("About")
         .setDescription("Discord music bot created as alternative to Groovy")
