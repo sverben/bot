@@ -10,7 +10,7 @@ function sendMessage(channel, message, optionalImage) {
     channel.send(embed);
 }
 
-async function execute(message, args, pool) {
+async function stop(message, args, pool) {
     var voiceChannel = message.member.voice.channel;
     if (!voiceChannel) {
         var embed = new Discord.MessageEmbed()
@@ -23,7 +23,7 @@ async function execute(message, args, pool) {
     if (typeof message.guild.voice == "undefined" || message.guild.voice.channelID == null) {
         return sendMessage(message.channel, "I am not in that channel!");
     }
-    if (voiceChannel.id != message.guild.voice.channelID) {
+    if (voiceChannel.id !== message.guild.voice.channelID) {
         return sendMessage(message.channel, "I am not in that channel!")
     }
 
@@ -39,6 +39,5 @@ async function execute(message, args, pool) {
 }
 
 module.exports = {
-    name: "stop",
-    execute
+    stop
 }

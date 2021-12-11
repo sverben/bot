@@ -1,7 +1,4 @@
-const ytdl = require('ytdl-core');
-const ytSearch = require('yt-search');
 const Discord = require("discord.js");
-const {MessageAttachment} = require("discord.js");
 
 function sendMessage(channel, message) {
     var embed = new Discord.MessageEmbed()
@@ -12,22 +9,18 @@ function sendMessage(channel, message) {
     channel.send(embed);
 }
 
-async function execute(message, args, pool) {
+async function radio(message, args) {
     var voiceChannel = message.member.voice.channel;
 
     if (!voiceChannel) return sendMessage(message.channel, "Join the voice channel to play radio in first!");
     var permissions = voiceChannel.permissionsFor(message.client.user);
-    if (!permissions.has('CONNECT')) return sendMessage(message.channel("I must have permissions to connect to the vc!"));
-    if (!permissions.has('SPEAK')) return sendMessage(message.channel("I must have permissions to talk"));
-    if (!args.length) return sendMessage(message.channel("Send a stream url"));
+    if (!permissions.has('CONNECT')) return sendMessage(message.channel, "I must have permissions to connect to the vc!");
+    if (!permissions.has('SPEAK')) return sendMessage(message.channel, "I must have permissions to talk");
+    if (!args.length) return sendMessage(message.channel, "Send a stream url");
 
     const validURL = (str) => {
-        var regex = /(http|https):\/\/(\w+:{0,1}\w*)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%!\-\/]))?/;
-        if(!regex.test(str)) {
-            return false;
-        } else {
-            return true;
-        }
+        var regex = /(http|https):\/\/(\w+:{0,1}\w*)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%\-\/]))?/;
+        return regex.test(str);
     }
 
     if (!validURL(args[0])) return sendMessage(message.channel, "Invalid url, please provide a stream url!");
@@ -39,6 +32,5 @@ async function execute(message, args, pool) {
 }
 
 module.exports = {
-    name: 'radio',
-    execute
+    radio
 }

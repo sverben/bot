@@ -1,5 +1,5 @@
 const Discord = require("discord.js");
-const fs = require("fs");
+const {readdirSync} = require("fs");
 const mysql = require("mysql2");
 
 var PREFIX = "!";
@@ -9,13 +9,13 @@ var client = new Discord.Client({intents: ["GUILDS", "GUILD_MESSAGES", "GUILD_ME
 
 client.commands = new Discord.Collection();
 
-const commandFiles = fs.readdirSync("./commands").filter(file => file.endsWith(".js"));
+const commandFiles = readdirSync("./commands").filter(file => file.endsWith(".js"));
 for (const file of commandFiles) {
-    const command = require(`./commands/${file}`);
+    const commandFile = require(`./commands/${file}`);
 
-    client.commands.set(command.name, command);
-
-    console.log(`Loaded module ${command.name}`);
+    for (let command in commandFile) {
+        client.commands.set(command, commandFile[command]);
+    }
 }
 
 var pool  = mysql.createPool({
@@ -41,15 +41,15 @@ client.on("message", message => {
     var command = args.shift().toLowerCase();
 
     if (client.commands.has(command)) {
-        client.commands.get(command).execute(message, args, pool, client);
+        client.commands.get(command)(message, args, pool, client);
     }
 })
 
-client.on('voiceStateUpdate', (oldState, newState) => {
+client.on('voiceStateUpdate', (oldState) => {
     var channel = oldState.channel;
     if (channel == null) return;
 
-    if(oldState.channel.members.size == 1) {
+    if(oldState.channel.members.size === 1) {
         oldState.channel.leave();
     }
 });
