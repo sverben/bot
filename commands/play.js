@@ -88,8 +88,21 @@ async function play(message, args, pool) {
         let videoResult = null;
         if (validURL(args[0])) {
             let urlParams = new URL(args[0]);
-            if (urlParams.searchParams.get("v") == null) return;
-            videoResult = {videos: [await ytSearch({videoId: urlParams.searchParams.get("v")})]};
+            if (urlParams.searchParams.get("list") != null) {
+                const list = await ytSearch({listId: urlParams.searchParams.get("list")});
+                if (!list) return null;
+
+                let items = [];
+                for (let video in list.videos ) {
+                    video = list.videos[video];
+                    items.push([`https://youtube.com/watch?v=${video.videoId}`, JSON.stringify({name: video.title, image: `https://i.ytimg.com/vi/${video.videoId}/maxresdefault.jpg`}), voiceChannel.guild.id]);
+                }
+
+                return (items.length > 0) ? {title: list.title, items} : null;
+            } else {
+                if (urlParams.searchParams.get("v") == null) return;
+                videoResult = {videos: [await ytSearch({videoId: urlParams.searchParams.get("v")})]};
+            }
         }
         else videoResult = await ytSearch(query);
 
@@ -99,44 +112,23 @@ async function play(message, args, pool) {
     const video = await videoFinder(args.join(' '));
 
     if(video) {
+        if (typeof video.items != "undefined") {
+            pool.query("INSERT INTO queue (url, info, server) VALUES ?", [video.items], () => {
+                if (connection != null) tasks.push({connection, vc: voiceChannel, server: voiceChannel.guild.id, pool});
+            })
+
+            await sendMessage(message.channel, `Added items in ***${video.title}*** to queue\n\n*You can stop playing and clear the queue by using !stop*`);
+
+            return;
+        }
         pool.query("INSERT INTO queue SET url = ?, info = ?, server = ?", [video.url, JSON.stringify({name: video.title, image: `https://i.ytimg.com/vi/${video.videoId}/maxresdefault.jpg`}), voiceChannel.guild.id], () => {
             if (connection != null) tasks.push({connection, vc: voiceChannel, server: voiceChannel.guild.id, pool});
         });
 
         await sendMessage(message.channel, `Added ***${video.title}*** to queue\n\n*You can stop playing and clear the queue by using !stop*`, `https://i.ytimg.com/vi/${video.videoId}/maxresdefault.jpg`);
     } else {
-        sendMessage(message.channel, "I couldn't find your video, try using the url");
+        sendMessage(message.channel, "I couldn't find your video or playlist");
     }
-}
-
-async function list(message, args, pool) {
-    let voiceChannel = message.member.voice.channel;
-
-    if (!voiceChannel) return sendMessage(message.channel, "Join the voice channel to play music in first!");
-    let permissions = voiceChannel.permissionsFor(message.client.user);
-    if (!permissions.has('CONNECT')) return sendMessage(message.channel, "I must have permissions to connect to the vc!");
-    if (!permissions.has('SPEAK')) return sendMessage(message.channel, "I must have permissions to talk");
-    if (!args.length) return sendMessage(message.channel, "Send a playlist id");
-
-    let connection = null;
-    if (typeof message.guild.voice == "undefined" || message.guild.voice.channelID == null) {
-        connection = await voiceChannel.join();
-    }
-
-    const list = await ytSearch({listId: args[0]});
-    if (!list) return sendMessage(message.channel, "Couldn't find your playlist!");
-
-    let items = [];
-    for (let video in list.videos ) {
-        video = list.videos[video];
-        console.log(video);
-        items.push([`https://youtube.com/watch?v=${video.videoId}`, JSON.stringify({name: video.title, image: `https://i.ytimg.com/vi/${video.videoId}/maxresdefault.jpg`}), voiceChannel.guild.id]);
-    }
-    pool.query("INSERT INTO queue (url, info, server) VALUES ?", [items], () => {
-        if (connection != null) tasks.push({connection, vc: voiceChannel, server: voiceChannel.guild.id, pool});
-    })
-
-    await sendMessage(message.channel, `Added items in ***${list.title}*** to queue\n\n*You can stop playing and clear the queue by using !stop*`);
 }
 
 function pause(message) {
@@ -156,5 +148,4 @@ module.exports = {
     next,
     pause,
     resume,
-    list
 }
