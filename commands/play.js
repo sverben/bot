@@ -1,9 +1,12 @@
 const ytdl = require('ytdl-core');
 const ytSearch = require('yt-search');
 const Discord = require("discord.js");
+const Lyrics = require('song-lyrics-api');
+const lyrics = new Lyrics();
 
 let streams = {};
 let connections = {};
+let playing = {};
 
 let tasks = [];
 
@@ -42,12 +45,14 @@ async function startPlaying(connection, vc, server, pool) {
         pool.query("DELETE FROM queue WHERE server = ? LIMIT 1", [server]);
         if (res.length === 0) {
             vc.leave();
+            delete playing[vc.guild.id];
             return;
         }
 
         const stream = ytdl(res[0].url, {filter: 'audioonly'});
         streams[vc.guild.id] = stream;
         res[0].info = JSON.parse(res[0].info);
+        playing[vc.guild.id] = res[0].info.name;
 
         connections[vc.guild.id] = connection.play(stream, {seek: 0, volume: 0.5})
             .on("finish", () => {
@@ -143,9 +148,22 @@ function resume(message) {
     return sendMessage(message.channel, "Resumed playing");
 }
 
+function getLyrics(message) {
+    if (typeof playing[message.guild.id] == "undefined") return sendMessage(message.channel, "Not playing music!");
+
+    lyrics.getLyrics(playing[message.guild.id])
+        .then((response) => {
+            return sendMessage(message.channel, `Lyrics for ***${response[0].title}*** by ***${response[0].artist}***\n\n${response[0].lyrics.lyrics}`);
+        })
+        .catch((error) => {
+            return sendMessage(message.channel, `No lyrics were found for ***${playing[message.guild.id]}***`)
+        })
+}
+
 module.exports = {
     play,
     next,
     pause,
     resume,
+    lyrics: getLyrics
 }

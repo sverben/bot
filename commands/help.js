@@ -12,7 +12,8 @@ function help(message) {
             "`!radio` Play mp3 radio streams, stream url after command\n" +
             "`!next` Skip the current song\n" +
             "`!pause` Pause the music\n" +
-            "`!resume` Resume playing")
+            "`!resume` Resume playing\n" +
+            "`!lyrics` Get the lyrics of the current song")
         .setThumbnail("https://cdn.discordapp.com/avatars/916672082199326790/71edd3de9b9045606d6065ad3073d271.png?size=256")
 
     message.channel.send(embed);
