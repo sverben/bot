@@ -5,6 +5,8 @@ const Discord = require("discord.js");
 let streams = {};
 let connections = {};
 
+let tasks = [];
+
 function sendMessage(channel, message, optionalImage) {
     if (typeof optionalImage == "undefined") optionalImage = null;
 
@@ -15,6 +17,25 @@ function sendMessage(channel, message, optionalImage) {
         .setThumbnail(optionalImage)
     channel.send(embed);
 }
+
+async function handleTask() {
+    if (tasks.length === 0) return;
+    let task = tasks[0];
+
+    await startPlaying(task.connection, task.vc, task.server, task.pool);
+
+    return;
+}
+
+async function handleTasks() {
+    while (true) {
+        await new Promise(resolve => setTimeout(resolve, 1));
+
+        await handleTask();
+        tasks.shift();
+    }
+}
+handleTasks();
 
 async function startPlaying(connection, vc, server, pool) {
     pool.query("SELECT * FROM queue WHERE server = ?", [server], (err, res) => {
@@ -30,7 +51,7 @@ async function startPlaying(connection, vc, server, pool) {
 
         connections[vc.guild.id] = connection.play(stream, {seek: 0, volume: 0.5})
             .on("finish", () => {
-                startPlaying(connection, vc, server, pool);
+                tasks.push({connection, vc, server, pool});
             })
 
         connection.voice.setSelfDeaf(true);
@@ -66,7 +87,7 @@ async function play(message, args, pool) {
     if(validURL(args[0])) {
 
         pool.query("INSERT INTO queue SET url = ?, info = ?, server = ?", [args[0], "{'name': 'Your link'}", voiceChannel.guild.id], () => {
-            if (connection != null) startPlaying(connection, voiceChannel, voiceChannel.guild.id, pool);
+            if (connection != null) tasks.push({connection, vc: voiceChannel, server: voiceChannel.guild.id, pool});
         });
 
         await sendMessage(message.channel, "Added ***Your Link*** to queue\n\n*You can stop playing and clear the queue by using !stop*");
@@ -84,7 +105,7 @@ async function play(message, args, pool) {
 
     if(video) {
         pool.query("INSERT INTO queue SET url = ?, info = ?, server = ?", [video.url, JSON.stringify({name: video.title, image: `https://i.ytimg.com/vi/${video.videoId}/maxresdefault.jpg`}), voiceChannel.guild.id], () => {
-            if (connection != null) startPlaying(connection, voiceChannel, voiceChannel.guild.id, pool);
+            if (connection != null) tasks.push({connection, vc: voiceChannel, server: voiceChannel.guild.id, pool});
         });
 
         await sendMessage(message.channel, `Added ***${video.title}*** to queue\n\n*You can stop playing and clear the queue by using !stop*`, `https://i.ytimg.com/vi/${video.videoId}/maxresdefault.jpg`);
