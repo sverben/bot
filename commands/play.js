@@ -86,7 +86,7 @@ async function play(message, args, pool) {
 
     if(validURL(args[0])) {
 
-        pool.query("INSERT INTO queue SET url = ?, info = ?, server = ?", [args[0], "{'name': 'Your link'}", voiceChannel.guild.id], () => {
+        pool.query("INSERT INTO queue SET url = ?, info = ?, server = ?", [args[0], JSON.stringify({name: "Your link"}), voiceChannel.guild.id], () => {
             if (connection != null) tasks.push({connection, vc: voiceChannel, server: voiceChannel.guild.id, pool});
         });
 
