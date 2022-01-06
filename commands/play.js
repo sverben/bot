@@ -3,6 +3,7 @@ const ytSearch = require('yt-search');
 const Discord = require("discord.js");
 
 let streams = {};
+let connections = {};
 
 function sendMessage(channel, message, optionalImage) {
     if (typeof optionalImage == "undefined") optionalImage = null;
@@ -27,7 +28,7 @@ async function startPlaying(connection, vc, server, pool) {
         streams[vc.guild.id] = stream;
         res[0].info = JSON.parse(res[0].info);
 
-        connection.play(stream, {seek: 0, volume: 0.5})
+        connections[vc.guild.id] = connection.play(stream, {seek: 0, volume: 0.5})
             .on("finish", () => {
                 startPlaying(connection, vc, server, pool);
             })
@@ -92,7 +93,21 @@ async function play(message, args, pool) {
     }
 }
 
+function pause(message) {
+    if (typeof streams[message.guild.id] == "undefined") return sendMessage(message.channel, "Not playing music!");
+    connections[message.guild.id].pause();
+    return sendMessage(message.channel, "Paused music");
+}
+
+function resume(message) {
+    if (typeof streams[message.guild.id] == "undefined") return sendMessage(message.channel, "Not playing music!");
+    connections[message.guild.id].resume();
+    return sendMessage(message.channel, "Resumed playing");
+}
+
 module.exports = {
     play,
-    next
+    next,
+    pause,
+    resume
 }
