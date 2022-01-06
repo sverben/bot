@@ -3,6 +3,7 @@ const ytSearch = require('yt-search');
 const Discord = require("discord.js");
 const Lyrics = require('song-lyrics-api');
 const lyrics = new Lyrics();
+const ytrend = require("yt-trending-scraper")
 
 let streams = {};
 let connections = {};
@@ -108,6 +109,20 @@ async function play(message, args, pool) {
                 if (urlParams.searchParams.get("v") == null) return;
                 videoResult = {videos: [await ytSearch({videoId: urlParams.searchParams.get("v")})]};
             }
+        } else if (args[0] === "trending") {
+            const parameters = {
+                geoLocation: typeof args[1] !== "undefined" ? args[1].toUpperCase() : "US",
+                parseCreatorOnRise: false,
+                page: 'music'
+            }
+
+            let trending = await ytrend.scrape_trending_page(parameters);
+            let items = [];
+            for (let video in trending) {
+                video = trending[video];
+                items.push([`https://youtube.com/watch?v=${video.videoId}`, JSON.stringify({name: video.title, image: `https://i.ytimg.com/vi/${video.videoId}/maxresdefault.jpg`}), voiceChannel.guild.id]);
+            }
+            return {title: "Trending songs", items};
         }
         else videoResult = await ytSearch(query);
 
