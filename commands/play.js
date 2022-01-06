@@ -114,6 +114,36 @@ async function play(message, args, pool) {
     }
 }
 
+async function list(message, args, pool) {
+    let voiceChannel = message.member.voice.channel;
+
+    if (!voiceChannel) return sendMessage(message.channel, "Join the voice channel to play music in first!");
+    let permissions = voiceChannel.permissionsFor(message.client.user);
+    if (!permissions.has('CONNECT')) return sendMessage(message.channel, "I must have permissions to connect to the vc!");
+    if (!permissions.has('SPEAK')) return sendMessage(message.channel, "I must have permissions to talk");
+    if (!args.length) return sendMessage(message.channel, "Send a playlist id");
+
+    let connection = null;
+    if (typeof message.guild.voice == "undefined" || message.guild.voice.channelID == null) {
+        connection = await voiceChannel.join();
+    }
+
+    const list = await ytSearch({listId: args[0]});
+    if (!list) return sendMessage(message.channel, "Couldn't find your playlist!");
+
+    let items = [];
+    for (let video in list.videos ) {
+        video = list.videos[video];
+        console.log(video);
+        items.push([`https://youtube.com/watch?v=${video.videoId}`, JSON.stringify({name: video.title, image: `https://i.ytimg.com/vi/${video.videoId}/maxresdefault.jpg`}), voiceChannel.guild.id]);
+    }
+    pool.query("INSERT INTO queue (url, info, server) VALUES ?", [items], () => {
+        if (connection != null) tasks.push({connection, vc: voiceChannel, server: voiceChannel.guild.id, pool});
+    })
+
+    await sendMessage(message.channel, `Added items in ***${list.title}*** to queue\n\n*You can stop playing and clear the queue by using !stop*`);
+}
+
 function pause(message) {
     if (typeof streams[message.guild.id] == "undefined") return sendMessage(message.channel, "Not playing music!");
     connections[message.guild.id].pause();
@@ -130,5 +160,6 @@ module.exports = {
     play,
     next,
     pause,
-    resume
+    resume,
+    list
 }
