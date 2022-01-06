@@ -60,7 +60,7 @@ async function startPlaying(connection, vc, server, pool) {
 
 function next(message) {
     if (typeof streams[message.guild.id] == "undefined") return sendMessage(message.channel, "I am not playing music!");
-    streams[message.guild.id].end();
+    connections[message.guild.id].end();
 
     sendMessage(message.channel, "Skipped!");
 }
