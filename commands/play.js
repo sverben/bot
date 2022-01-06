@@ -88,7 +88,7 @@ async function play(message, args, pool) {
         let videoResult = null;
         if (validURL(args[0])) {
             let urlParams = new URL(args[0]);
-            if (urlParams.searchParams.get("v") == null) return sendMessage(message.channel, "Invalid YouTube URL");
+            if (urlParams.searchParams.get("v") == null) return;
             videoResult = {videos: [await ytSearch({videoId: urlParams.searchParams.get("v")})]};
         }
         else videoResult = await ytSearch(query);
