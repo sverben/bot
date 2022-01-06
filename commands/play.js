@@ -84,21 +84,16 @@ async function play(message, args, pool) {
         connection = await voiceChannel.join();
     }
 
-    if(validURL(args[0])) {
-
-        pool.query("INSERT INTO queue SET url = ?, info = ?, server = ?", [args[0], JSON.stringify({name: "Your link"}), voiceChannel.guild.id], () => {
-            if (connection != null) tasks.push({connection, vc: voiceChannel, server: voiceChannel.guild.id, pool});
-        });
-
-        await sendMessage(message.channel, "Added ***Your Link*** to queue\n\n*You can stop playing and clear the queue by using !stop*");
-
-        return
-    }
-
     const videoFinder = async (query) => {
-        const videoResult = await ytSearch(query);
+        let videoResult = null;
+        if (validURL(args[0])) {
+            let urlParams = new URL(args[0]);
+            if (urlParams.searchParams.get("v") == null) return sendMessage(message.channel, "Invalid YouTube URL");
+            videoResult = {videos: [await ytSearch({videoId: urlParams.searchParams.get("v")})]};
+        }
+        else videoResult = await ytSearch(query);
 
-        return (videoResult.videos.length > 1) ? videoResult.videos[0] : null;
+        return (videoResult.videos.length > 0) ? videoResult.videos[0] : null;
     }
 
     const video = await videoFinder(args.join(' '));
