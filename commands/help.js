@@ -13,7 +13,7 @@ function help(message) {
             "`!next` Skip the current song\n" +
             "`!pause` Pause the music\n" +
             "`!resume` Resume playing\n" +
-            "`!lyrics` Get the lyrics of the specified song")
+            "`!lyrics` Get the lyrics of the current/specified song")
         .setThumbnail("https://cdn.discordapp.com/avatars/916672082199326790/71edd3de9b9045606d6065ad3073d271.png?size=256")
 
     message.channel.send(embed);

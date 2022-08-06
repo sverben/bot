@@ -164,13 +164,16 @@ function resume(message) {
 }
 
 function getLyrics(message, args) {
-    if (!args.length) return sendMessage(message.channel, "Enter a song to search lyrics for!");
-    const songName = args.join(" ");
+    if (typeof streams[message.guild.id] == "undefined" && !args.length) return sendMessage(message.channel, "Enter or play a song to search lyrics for!");
+    const songName = (args.length > 0) ? args.join(" ") : playing[message.guild.id];
 
     lyrics.getLyrics(songName).then((response) => {
         return sendMessage(message.channel, `Lyrics for ***${response[0].title}*** by ***${response[0].artist}***\n\n${response[0].lyrics.lyrics}`);
     }).catch((error) => {
-        return sendMessage(message.channel, `Sorry, no lyrics were found for ***${songName}***.`)
+        let replyText = `Sorry, no lyrics were found for ***${songName}***.`;
+        if (!args.length) replyText += "\nYou can try to get lyrics by using `!lyrics <song name>`";
+
+        return sendMessage(message.channel, replyText);
     });
 }
 
