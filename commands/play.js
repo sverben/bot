@@ -163,16 +163,18 @@ function resume(message) {
     return sendMessage(message.channel, "Resumed playing");
 }
 
-function getLyrics(message) {
-    if (typeof playing[message.guild.id] == "undefined") return sendMessage(message.channel, "Not playing music!");
+function getLyrics(message, args) {
+    if (typeof streams[message.guild.id] == "undefined" && !args.length) return sendMessage(message.channel, "Enter or play a song to search lyrics for!");
+    const songName = (args.length > 0) ? args.join(" ") : playing[message.guild.id];
 
-    lyrics.getLyrics(playing[message.guild.id])
-        .then((response) => {
-            return sendMessage(message.channel, `Lyrics for ***${response[0].title}*** by ***${response[0].artist}***\n\n${response[0].lyrics.lyrics}`);
-        })
-        .catch((error) => {
-            return sendMessage(message.channel, `No lyrics were found for ***${playing[message.guild.id]}***`)
-        })
+    lyrics.getLyrics(songName).then((response) => {
+        return sendMessage(message.channel, `Lyrics for ***${response[0].title}*** by ***${response[0].artist}***\n\n${response[0].lyrics.lyrics}`);
+    }).catch((error) => {
+        let replyText = `Sorry, no lyrics were found for ***${songName}***.`;
+        if (!args.length) replyText += "\nYou can try to get lyrics by using `!lyrics <song name>`";
+
+        return sendMessage(message.channel, replyText);
+    });
 }
 
 module.exports = {
